@@ -1,0 +1,71 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+
+def scrap_values():
+    url = "https://valorinveste.globo.com/cotacoes/"
+
+    #recebe e trata o texto html do site
+    page = requests.get(url)
+    soup = BeautifulSoup(page.text, "lxml")
+
+    #pega os nomes das colunas
+    table1 = soup.find('div', id = 'cotacoes-intradia')
+    title = []
+
+    for i in table1.find_all('thead'):
+        title = i.text
+
+    title = title.split('   ')
+    title.pop(0)
+    title.pop(-1)
+
+    mydata = pd.DataFrame(columns=title)
+
+    #pega os valores das linhas e, junto com os titulos, criam um arquivo CSV
+    row_data = []
+    for j in table1.find_all('tbody',class_ = 'vd-table__body'):
+        row_data = j.text
+
+    row_data = row_data.split('   ')
+    row_data.pop(0)
+    row_data.pop(-1)
+
+
+    nomes = []
+    codigos = []
+    ultima = []
+    variacao = []
+    dia_anterior = []
+
+    count = 0
+    while count < len(row_data) :
+        nomes.append(row_data[count])
+        count = count + 1
+        codigos.append(row_data[count])
+        count = count + 1
+        ultima.append(row_data[count])
+        count = count + 1
+        variacao.append(row_data[count])
+        count = count + 1
+        dia_anterior.append(row_data[count])
+        count = count + 1
+
+    nomes = pd.Series(nomes)
+    mydata['Nome'] = nomes
+    codigos = pd.Series(codigos)
+    mydata['Código'] = codigos
+    ultima = pd.Series(ultima)
+    mydata['Última (R$)'] = ultima
+    variacao = pd.Series(variacao)
+    mydata['Variação (%)'] = variacao
+    dia_anterior = pd.Series(dia_anterior)
+    mydata['Fech. dia anterior (R$)'] = dia_anterior
+
+    mydata.to_csv('valor_acoes.csv', index = False, encoding='utf-8')
+
+
+
+
+
