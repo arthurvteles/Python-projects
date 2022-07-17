@@ -1,0 +1,31 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+import os
+
+
+def send_email():
+    #valores salvos como variaveis de ambiente#
+    email_user = os.environ.get('EMAIL_USUARIO')
+    email_password = os.environ.get('EMAIL_SENHA')
+
+
+    #Cria um objeto mensagem com formato de email
+    msg = MIMEMultipart()
+    body = MIMEText ('Valores das ações da B3 hoje')
+    msg['Subject'] = 'Valor ações B3'
+    msg['From'] = email_user
+    msg['To'] = 'arthurvergas00@gmail.com'
+    msg.attach(body)
+
+    #adiciona o arquivo csv ao email
+    with open('valor_acoes.csv' ,mode='rb' ) as file:
+        msg.attach(MIMEApplication(file.read(), NAME = 'valores_acoes.csv', encoding = 'utf-8'))
+
+
+    #fazendo a conexao com o e-mail a partir da porta e envia o objeto me
+    with smtplib.SMTP_SSL(host='smtp.gmail.com', port = 465) as smtp:
+        smtp.login(email_user,email_password)
+        smtp.sendmail(msg['From'], msg['To'], msg.as_string())
+
