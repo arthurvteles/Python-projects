@@ -1,0 +1,13 @@
+import scrap_valores
+import send_gmail
+
+choice = 0
+
+while choice!= 3 :
+    print(f"1-Atualizar valores\n2-Enviar e-mail\n3-Sair")
+    choice = int(input())
+
+    if choice == 1:
+        scrap_valores.scrap_values()
+    elif choice == 2:
+        send_gmail.send_email()
